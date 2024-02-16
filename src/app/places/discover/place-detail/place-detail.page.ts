@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {ModalController, NavController} from "@ionic/angular";
+import {ActionSheetController, ModalController, NavController} from "@ionic/angular";
 import {Place} from "../../place.model";
 import {PlacesService} from "../../places.service";
 import {CreateBookingComponent} from "../../../bookings/create-booking/create-booking.component";
@@ -16,7 +16,8 @@ export class PlaceDetailPage implements OnInit {
     private route: ActivatedRoute,
     private navCtrl: NavController,
     private placesService: PlacesService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private actionSheerCtrl: ActionSheetController
   ) {}
 
   ngOnInit() {
@@ -28,17 +29,47 @@ export class PlaceDetailPage implements OnInit {
 
   onBookPlace() {
     // this.navCtrl.navigateBack('/places/discover');
-    this.modalCtrl.create({
-      component: CreateBookingComponent,
-      componentProps: {selectedPlace: this.place}
-    }).then(modalEl => {
-      modalEl.present()
-      return modalEl.onDidDismiss();
-    })
-      .then(resulData => {
-        if(resulData.role === 'confirm') {
-          console.log('BOOKED');
+    this.actionSheerCtrl.create({
+      header: 'Choose an Action',
+      buttons: [
+        {
+          text: 'Select Date',
+          handler: () => {
+            this.openBookingModal('select');
+          }
+        },
+        {
+          text: 'Random Date',
+          handler: () => {
+            this.openBookingModal('random');
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
         }
+      ]
+    }).then(actionSheet => {
+      actionSheet.present();
+    })
+
+  }
+
+  private openBookingModal(mode: 'select' | 'random') {
+    console.log(mode);
+    this.modalCtrl
+      .create({
+        component: CreateBookingComponent,
+        componentProps: {selectedPlace: this.place}
       })
+      .then(modalEl => {
+        modalEl.present();
+        return modalEl.onDidDismiss();
+      })
+      .then(resulData => {
+          if(resulData.role === 'confirm') {
+            console.log('BOOKED');
+          }
+      });
   }
 }
