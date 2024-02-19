@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {AuthService} from "./auth.service";
 import {Router} from "@angular/router";
-import {LoadingController} from "@ionic/angular";
+import {IonIcon, IonInput, LoadingController} from "@ionic/angular";
+import {NgForm} from "@angular/forms";
 
 @Component({
   selector: 'app-auth',
@@ -10,6 +11,7 @@ import {LoadingController} from "@ionic/angular";
 })
 export class AuthPage implements OnInit {
   isLoading = false;
+  isLogin = true;
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -19,7 +21,9 @@ export class AuthPage implements OnInit {
   ngOnInit() {
   }
 
-  onLogin() {
+  onLogin(f: NgForm) {
+    console.log(f)
+    if(f.invalid) return;
     this.isLoading = true;
     this.authService.login();
     this.loadingCtrl
@@ -34,4 +38,18 @@ export class AuthPage implements OnInit {
       });
   }
 
+  changePasswordVisibility(passwordInput: IonInput, eyeIcon: IonIcon) {
+    let isVisiblie = passwordInput.type === 'text';
+    if (isVisiblie) {
+      passwordInput.type = 'password';
+      eyeIcon.name = 'eye-off';
+      return;
+    }
+    passwordInput.type = 'text';
+    eyeIcon.name = 'eye';
+  }
+
+  onSwitchAuthMode() {
+    this.isLogin = !this.isLogin;
+  }
 }

@@ -1,15 +1,71 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Authenticate</ion-title>
+    <ion-title>{{isLogin ? 'Signup' : 'Login'}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <ion-item>
-    <ion-label position="floating">Email</ion-label>
-    <ion-input></ion-input>
-  </ion-item>
-  <ion-button color="primary" (click)="onLogin()" *ngIf="!isLoading">
-    Login
-  </ion-button>
+<ion-content class="ion-padding">
+  <form #f="ngForm" (ngSubmit)="onLogin(f)">
+    <ion-grid>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-list>
+            <ion-item>
+              <ion-input
+                type="email"
+                fill="solid"
+                label="Email"
+                labelPlacement="floating"
+                helperText="Enter a valid email"
+                errorText="Invalid email"
+                ngModel
+                name="email"
+                required
+                email
+              >
+                <ion-icon slot="start" name="mail" aria-hidden="true"></ion-icon>
+              </ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input
+                type="password"
+                fill="solid"
+                label="Password"
+                labelPlacement="stacked"
+                helperText="Enter a password min 8 characters long"
+                errorText="Invalid password"
+                ngModel
+                name="password"
+                required
+                minlength="8"
+                #passwordInput
+              >
+                <ion-icon slot="start" name="lock-closed" aria-hidden="true"></ion-icon>
+                <ion-button fill="clear" slot="end" aria-label="Show/hide" (click)="changePasswordVisibility(passwordInput, eyeIcon)">
+                  <ion-icon slot="icon-only" name="eye-off" aria-hidden="true" #eyeIcon></ion-icon>
+                </ion-button>
+              </ion-input>
+            </ion-item>
+          </ion-list>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-button
+            type="button"
+            color="primary"
+            fill="clear"
+            expand="full"
+            (click)="onSwitchAuthMode()"
+            >Switch to {{isLogin ? 'signup' : 'login'}}</ion-button>
+          <ion-button
+            type="submit"
+            color="primary"
+            expand="block"
+            [disabled]="!f.valid"
+            >Login</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
 </ion-content>

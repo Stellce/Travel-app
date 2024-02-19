@@ -236,9 +236,16 @@
 }
 
 html {
-  /* 
+  /*
    * For more information on dynamic font scaling, visit the documentation:
    * https://ionicframework.com/docs/layout/dynamic-font-scaling
    */
   --ion-dynamic-font: var(--ion-default-dynamic-font);
+
+  --ion-toolbar-background: var(--ion-color-primary, black);
+  --ion-toolbar-border-color: var(--ion-color-primary-contrast, white);
+}
+
+ion-button {
+  --box-shadow: 2px 2px 20px rgba(0,0,0,0.6);
 }
