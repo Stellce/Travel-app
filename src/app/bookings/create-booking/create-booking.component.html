@@ -10,6 +10,87 @@
 </ion-header>
 
 <ion-content class="ion-text-center ion-padding">
-  <p>{{selectedPlace.description}}</p>
-  <ion-button color="primary" (click)="onBookPlace()">Book!</ion-button>
+  <form (ngSubmit)="onBookPlace()" #f=ngForm>
+    <ion-grid>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-input
+            label="First Name"
+            labelPlacement="floating"
+            ngModel
+            name="firstName"
+            required
+          ></ion-input>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-input
+            label="Last Name"
+            labelPlacement="floating"
+            ngModel
+            name="lastName"
+            required
+          ></ion-input>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-select
+            label="Number of guests"
+            name="guestNumber"
+            [ngModel]="'2'"
+          >
+            <ion-select-option value="1">1</ion-select-option>
+            <ion-select-option value="2">2</ion-select-option>
+            <ion-select-option value="3">3</ion-select-option>
+          </ion-select>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-datetime
+            presentation="date"
+            [min]="selectedPlace.availableFrom.toISOString()"
+            [max]="selectedPlace.availableTo.toISOString()"
+            [ngModel]="startDate"
+            #startDateCtrl="ngModel"
+            name="dateFrom"
+            required
+          >
+            <span slot="title">
+              From
+            </span>
+          </ion-datetime>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-datetime
+            presentation="date"
+            [min]="startDateCtrl.value"
+            [max]="selectedPlace.availableTo.toISOString()"
+            [ngModel]="endDate"
+            name="dateTo"
+            required
+          >
+            <span slot="title">To</span>
+          </ion-datetime>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-button
+            type="submit"
+            color="primary"
+            (click)="onBookPlace()"
+            expand="block"
+            [disabled]="!f.valid || !datesValid()"
+          >
+            Book
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
 </ion-content>
