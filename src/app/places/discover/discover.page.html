@@ -17,12 +17,12 @@
       <ion-col size="12" size-sm="8" offset-sm="2" class="ion-text-center">
         <ion-card>
           <ion-card-header>
-            <ion-card-title> {{loadedPlaces[0].title}}</ion-card-title>
-            <ion-card-subtitle>{{loadedPlaces[0].price | currency}}</ion-card-subtitle>
+            <ion-card-title> {{places[0].title}}</ion-card-title>
+            <ion-card-subtitle>{{places[0].price | currency}}</ion-card-subtitle>
           </ion-card-header>
-            <ion-img [src]="loadedPlaces[0].imageUrl"></ion-img>
+            <ion-img [src]="places[0].imageUrl"></ion-img>
             <ion-card-content>
-              <p>{{loadedPlaces[0].description}}</p>
+              <p>{{places[0].description}}</p>
             </ion-card-content>
             <div class="ion-text-center">
               <ion-button
@@ -33,7 +33,7 @@
                 '/',
                 'places',
                 'discover',
-                loadedPlaces[0].id
+                places[0].id
                 ]"
               >
                 More
@@ -47,7 +47,7 @@
           <ion-list>
             <ion-item-sliding>
               <ion-item
-                *cdkVirtualFor="let place of loadedPlaces"
+                *cdkVirtualFor="let place of places"
                 [routerLink]="['/', 'places', 'discover', place?.id]"
                 detail=""
               >
