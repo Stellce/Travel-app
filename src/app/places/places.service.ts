@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import {Place} from "./place.model";
 import {AuthService} from "../auth/auth.service";
-import {BehaviorSubject, map, take} from "rxjs";
+import {BehaviorSubject, delay, map, take, tap} from "rxjs";
+import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
 
 @Injectable({
   providedIn: 'root'
@@ -71,6 +72,7 @@ export class PlacesService {
       'abc'
     ),
   ]);
+  testSub = new BehaviorSubject(123);
   constructor(private authService: AuthService) {}
   get places() {
     return this._places.asObservable();
@@ -101,8 +103,31 @@ export class PlacesService {
         dateTo,
         this.authService.userId
         );
-    this.places.pipe(take(1)).subscribe(places => {
-      this._places.next(places.concat(newPlace));
-    })
+    return this.places.pipe(
+      take(1),
+      delay(1000),
+      tap(places => {
+        this._places.next(places.concat(newPlace));
+      })
+    );
+  }
+
+  updateOffer(placeId: string, title: string, description: string) {
+    return this.places.pipe(take(1), delay(1000), tap(places => {
+      const updatedPlaceIndex = places.findIndex(place => place.id === placeId)
+      const updatedPlaces = [...places];
+      const oldPlace = updatedPlaces[updatedPlaceIndex];
+      updatedPlaces[updatedPlaceIndex] = new Place(
+        oldPlace.id,
+        title,
+        description,
+        oldPlace.imageUrl,
+        oldPlace.price,
+        oldPlace.availableFrom,
+        oldPlace.availableTo,
+        oldPlace.userId
+      );
+      this._places.next(updatedPlaces);
+    }));
   }
 }
