@@ -39,7 +39,7 @@ export class PlacesService {
       'abc'
     ),
  ]);
-  private _offers: Place[] = [
+  private _offers = new BehaviorSubject<Place[]>([
     new Place(
       'p3',
       'Manhattan Mansion',
@@ -70,14 +70,14 @@ export class PlacesService {
       new Date('2024-12-31'),
       'abc'
     ),
-  ];
+  ]);
   constructor(private authService: AuthService) {}
   get places() {
     return this._places.asObservable();
   }
 
   get offers() {
-    return [...this._offers];
+    return this._offers.asObservable();
   }
 
   getPlace(id: string) {
