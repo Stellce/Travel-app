@@ -22,7 +22,6 @@ export class AuthPage implements OnInit {
   }
 
   onLogin(f: NgForm) {
-    console.log(f)
     if(f.invalid) return;
     this.isLoading = true;
     this.authService.login();

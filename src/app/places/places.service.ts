@@ -130,4 +130,12 @@ export class PlacesService {
       this._places.next(updatedPlaces);
     }));
   }
+
+  updatePlaceUserIdByPlaceId(placeId: string) {
+    this.places.pipe(take(1)).subscribe(places => {
+      places.find(p => p.id === placeId).userId = this.authService.userId;
+      this._places.next(places);
+    })
+  }
+
 }

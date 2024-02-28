@@ -7,7 +7,7 @@
   </ion-toolbar>
 </ion-header>
 <ion-content class="ion-padding">
-  <ion-segment value="all" (ionChange)="onFilterUpdate($event)">
+  <ion-segment value="all" (ionChange)="onFilterUpdate($event.detail.value.toString())">
     <ion-segment-button value="all">All places</ion-segment-button>
     <ion-segment-button value="bookable">Bookable Places</ion-segment-button>
   </ion-segment>
@@ -54,7 +54,7 @@
           <ion-list>
             <ion-item-sliding>
               <ion-item
-                *cdkVirtualFor="let place of listedLoadedPlaces"
+                *cdkVirtualFor="let place of relevantPlaces.slice(1)"
                 [routerLink]="['/', 'places', 'discover', place?.id]"
                 detail=""
               >

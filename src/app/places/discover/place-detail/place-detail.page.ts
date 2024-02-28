@@ -81,30 +81,30 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         return modalEl.onDidDismiss();
       })
       .then(resulData => {
-          if(resulData.role === 'confirm') {
-            this.loadingCtr
-              .create({message: 'Booking place...'})
-              .then(loadingEl => {
-                loadingEl.present();
-                const data = resulData.data.bookingData;
-                const newBooking: Booking = {
-                  id: null,
-                  placeId: this.place.id,
-                  userId: null,
-                  placeTitle: this.place.title,
-                  placeImage: this.place.imageUrl,
-                  firstName: data.firstName,
-                  lastName: data.lastName,
-                  guestNumber: data.guestNumber,
-                  bookedFrom: data.startDate,
-                  bookedTo: data.endDate
-                }
-                this.bookingService.addBooking(newBooking).subscribe(() => {
-                  loadingEl.dismiss();
-                  this.navCtrl.navigateBack('/places/discover');
-                })
+        if(resulData.role === 'confirm') {
+          this.loadingCtr
+            .create({message: 'Booking place...'})
+            .then(loadingEl => {
+              loadingEl.present();
+              const data = resulData.data.bookingData;
+              const newBooking: Booking = {
+                id: null,
+                placeId: this.place.id,
+                userId: null,
+                placeTitle: this.place.title,
+                placeImage: this.place.imageUrl,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                guestNumber: data.guestNumber,
+                bookedFrom: data.startDate,
+                bookedTo: data.endDate
+              }
+              this.bookingService.addBooking(newBooking).subscribe(() => {
+                loadingEl.dismiss();
+                this.navCtrl.navigateBack('/places/discover');
               })
-          }
+            })
+        }
       });
   }
   ngOnDestroy() {
