@@ -12,17 +12,24 @@
     <ion-segment-button value="bookable">Bookable Places</ion-segment-button>
   </ion-segment>
   <cdk-virtual-scroll-viewport itemSize="70" minBufferPx="900" maxBufferPx="1350">
-  <ion-grid>
+    <ion-grid *ngIf="!relevantPlaces || relevantPlaces.length <= 0">
+      <ion-row>
+        <ion-col size="12" size-sm="8" offset-sm="2" class="ion-text-center">
+          <p>There are no bookable places right now, please come back later!</p>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <ion-grid *ngIf="relevantPlaces.length > 0">
     <ion-row>
       <ion-col size="12" size-sm="8" offset-sm="2" class="ion-text-center">
         <ion-card>
           <ion-card-header>
-            <ion-card-title> {{places[0].title}}</ion-card-title>
-            <ion-card-subtitle>{{places[0].price | currency}}</ion-card-subtitle>
+            <ion-card-title> {{relevantPlaces[0].title}}</ion-card-title>
+            <ion-card-subtitle>{{relevantPlaces[0].price | currency}}</ion-card-subtitle>
           </ion-card-header>
-            <ion-img [src]="places[0].imageUrl"></ion-img>
+            <ion-img [src]="relevantPlaces[0].imageUrl"></ion-img>
             <ion-card-content>
-              <p>{{places[0].description}}</p>
+              <p>{{relevantPlaces[0].description}}</p>
             </ion-card-content>
             <div class="ion-text-center">
               <ion-button
@@ -33,7 +40,7 @@
                 '/',
                 'places',
                 'discover',
-                places[0].id
+                relevantPlaces[0].id
                 ]"
               >
                 More
@@ -47,7 +54,7 @@
           <ion-list>
             <ion-item-sliding>
               <ion-item
-                *cdkVirtualFor="let place of places"
+                *cdkVirtualFor="let place of listedLoadedPlaces"
                 [routerLink]="['/', 'places', 'discover', place?.id]"
                 detail=""
               >
