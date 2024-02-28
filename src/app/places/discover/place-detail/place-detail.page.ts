@@ -7,6 +7,7 @@ import {CreateBookingComponent} from "../../../bookings/create-booking/create-bo
 import {Subscription} from "rxjs";
 import {BookingService} from "../../../bookings/booking.service";
 import {AuthService} from "../../../auth/auth.service";
+import {Booking} from "../../../bookings/booking.model";
 
 @Component({
   selector: 'app-place-detail',
@@ -70,7 +71,6 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
   }
 
   private openBookingModal(mode: 'select' | 'random') {
-    console.log(mode);
     this.modalCtrl
       .create({
         component: CreateBookingComponent,
@@ -81,24 +81,27 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         return modalEl.onDidDismiss();
       })
       .then(resulData => {
-        console.log(resulData.data)
           if(resulData.role === 'confirm') {
             this.loadingCtr
               .create({message: 'Booking place...'})
               .then(loadingEl => {
                 loadingEl.present();
                 const data = resulData.data.bookingData;
-                this.bookingService.addBooking(
-                  this.place.id,
-                  this.place.title,
-                  this.place.imageUrl,
-                  data.firstName,
-                  data.lastName,
-                  data.guestNumber,
-                  data.startDate,
-                  data.endDate
-                ).subscribe(() => {
+                const newBooking: Booking = {
+                  id: null,
+                  placeId: this.place.id,
+                  userId: null,
+                  placeTitle: this.place.title,
+                  placeImage: this.place.imageUrl,
+                  firstName: data.firstName,
+                  lastName: data.lastName,
+                  guestNumber: data.guestNumber,
+                  bookedFrom: data.startDate,
+                  bookedTo: data.endDate
+                }
+                this.bookingService.addBooking(newBooking).subscribe(() => {
                   loadingEl.dismiss();
+                  this.navCtrl.navigateBack('/places/discover');
                 })
               })
           }

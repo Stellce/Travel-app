@@ -1,14 +1,12 @@
-export class Booking {
-  constructor(
-    public id: string,
-    public placeId: string,
-    public userId: string,
-    public placeTitle: string,
-    public placeImage: string,
-    public firstName: string,
-    public lastName: string,
-    public guestNumber: number,
-    public bookedFrom: Date,
-    public bookedTo: Date
-  ) {}
+export interface Booking {
+    id: string,
+    placeId: string,
+    userId: string,
+    placeTitle: string,
+    placeImage: string,
+    firstName: string,
+    lastName: string,
+    guestNumber: number,
+    bookedFrom: Date,
+    bookedTo: Date
 }

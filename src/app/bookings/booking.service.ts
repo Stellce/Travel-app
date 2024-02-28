@@ -15,28 +15,8 @@ export class BookingService {
     private authService: AuthService
   ) { }
 
-  addBooking(
-    placeId: string,
-    placeTitle: string,
-    placeImage: string,
-    firstName: string,
-    lastName: string,
-    guestNumber: number,
-    bookedFrom: Date,
-    bookedTo: Date
-  ) {
-    const newBooking = new Booking(
-      Math.random().toString(),
-      placeId,
-      this.authService.userId,
-      placeTitle,
-      placeImage,
-      firstName,
-      lastName,
-      guestNumber,
-      bookedFrom,
-      bookedTo
-    );
+  addBooking(newBooking: Booking) {
+    newBooking = {...newBooking, id: Math.random().toString()};
     return this.bookings.pipe(
       take(1),
       delay(1000),
