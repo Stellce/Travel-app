@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {Booking} from "./booking.model";
-import {BehaviorSubject, delay, map, switchMap, take, tap} from "rxjs";
+import {BehaviorSubject, map, switchMap, take, tap} from "rxjs";
 import {AuthService} from "../auth/auth.service";
 import {PlacesService} from "../places/places.service";
 import {HttpClient} from "@angular/common/http";
@@ -46,9 +46,11 @@ export class BookingService {
   }
 
   cancelBooking(bookingId: string) {
-    return this.bookings.pipe(
+    return this.http.delete(`${this.backendUrl}/bookings/${bookingId}.json`).pipe(
+      switchMap(() => {
+        return this.bookings;
+      }),
       take(1),
-      delay(1000),
       tap(bookings => {
         this._bookings.next(bookings.filter(b => b.id !== bookingId));
       })
