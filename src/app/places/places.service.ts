@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Place} from "./place.model";
 import {AuthService} from "../auth/auth.service";
-import {BehaviorSubject, delay, map, switchMap, take, tap} from "rxjs";
+import {BehaviorSubject, delay, map, of, switchMap, take, tap} from "rxjs";
 import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
 import {HttpClient} from "@angular/common/http";
 import {PlaceResponse} from "./place-response.model";
@@ -84,12 +84,26 @@ export class PlacesService {
   }
 
   getPlace(id: string) {
-    return this.places.pipe(
-      take(1),
-      map(places => {
-        return {...places.find(p => p.id === id)}
+    return this.http.get<PlaceResponse>(`${this.backendUrl}/${id}.json`).pipe(
+      map(placeResponse => {
+        return new Place(
+          id,
+          placeResponse.title,
+          placeResponse.description,
+          placeResponse.imageUrl,
+          placeResponse.price,
+          new Date(placeResponse.availableFrom),
+          new Date(placeResponse.availableTo),
+          placeResponse.userId
+        );
       })
-    );
+    )
+    // return this.places.pipe(
+    //   take(1),
+    //   map(places => {
+    //     return {...places.find(p => p.id === id)}
+    //   })
+    // );
   }
 
   addPlace(title: string, decription: string, price: number, dateFrom: Date, dateTo: Date) {
@@ -125,6 +139,13 @@ export class PlacesService {
     return this.places.pipe(
       take(1),
       switchMap(places => {
+        if(!places || places.length <= 0) {
+          return this.fetchPlaces();
+        } else {
+          return of(places);
+        }
+      }),
+      switchMap(places => {
         const updatedPlaceIndex = places.findIndex(place => place.id === placeId)
         const updatedPlaces = [...places];
         const oldPlace = updatedPlaces[updatedPlaceIndex];
@@ -145,7 +166,8 @@ export class PlacesService {
       }),
       tap(() => {
         this._places.next(updatedPlaces);
-      }));
+      })
+    );
   }
 
   updatePlaceUserIdByPlaceId(placeId: string) {
