@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Place} from "./place.model";
 import {AuthService} from "../auth/auth.service";
-import {BehaviorSubject, delay, map, of, switchMap, take, tap} from "rxjs";
+import {BehaviorSubject, delay, map, of, switchMap, take, tap, throwError} from "rxjs";
 import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
 import {HttpClient} from "@angular/common/http";
 import {PlaceResponse} from "./place-response.model";
@@ -84,7 +84,7 @@ export class PlacesService {
   }
 
   getPlace(id: string) {
-    return this.http.get<PlaceResponse>(`${this.backendUrl}/${id}.json`).pipe(
+    return this.http.get<PlaceResponse>(`${this.backendUrl}/offered-places/${id}.json`).pipe(
       map(placeResponse => {
         return new Place(
           id,

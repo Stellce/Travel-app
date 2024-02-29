@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
-import {LoadingController, NavController} from "@ionic/angular";
+import {AlertController, LoadingController, NavController} from "@ionic/angular";
 import {Place} from "../../place.model";
 import {PlacesService} from "../../places.service";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
@@ -22,7 +22,8 @@ export class EditOfferPage implements OnInit, OnDestroy {
     private navCtrl: NavController,
     private placesService: PlacesService,
     private router: Router,
-    private loadingCtr: LoadingController
+    private loadingCtr: LoadingController,
+    private alertCtrl: AlertController
   ) {}
 
   ngOnInit() {
@@ -30,21 +31,35 @@ export class EditOfferPage implements OnInit, OnDestroy {
       if(!paramMap.has('placeId')) return this.navCtrl.navigateBack('/places/offers');
       this.placeId = paramMap.get('placeId');
       this.isLoading = true;
-      this.placeSub = this.placesService.getPlace( paramMap.get('placeId')).subscribe(place => {
-        this.place = place;
-        this.form = new FormGroup({
-          title: new FormControl(this.place.title, {
-            updateOn: 'blur',
-            validators: [Validators.required]
-          }),
-          description: new FormControl(this.place.description, {
-            updateOn: 'blur',
-            validators: [Validators.required, Validators.maxLength(180)]
-          }),
-        });
-        this.isLoading = false;
-      });
-
+      this.placeSub = this.placesService.getPlace( paramMap.get('placeId')).subscribe({
+        next: place => {
+          this.place = place;
+          this.form = new FormGroup({
+            title: new FormControl(this.place.title, {
+              updateOn: 'blur',
+              validators: [Validators.required]
+            }),
+            description: new FormControl(this.place.description, {
+              updateOn: 'blur',
+              validators: [Validators.required, Validators.maxLength(180)]
+            }),
+          });
+          this.isLoading = false;
+        },
+        error: error => {
+          console.log('ERROR OCCURED')
+          console.log(error)
+          this.alertCtrl.create({
+            header: 'An error occured!',
+            message: 'Place could not be fetched. Please try again later',
+            buttons: [{
+              text: 'Okay', handler: () => {
+                this.router.navigate(['places/offers']);
+              }
+            }]
+          }).then(alertEl => alertEl.present());
+        }
+      })
     })
   }
 
