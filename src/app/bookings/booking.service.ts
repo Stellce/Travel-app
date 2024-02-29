@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import {Booking} from "./booking.model";
-import {BehaviorSubject, delay, switchMap, take, tap} from "rxjs";
+import {BehaviorSubject, delay, map, switchMap, take, tap} from "rxjs";
 import {AuthService} from "../auth/auth.service";
 import {PlacesService} from "../places/places.service";
 import {HttpClient} from "@angular/common/http";
 import {environment} from "../../environments/environment";
+import {BookingResponse} from "./booking-response.model";
 
 @Injectable({
   providedIn: 'root'
@@ -20,14 +21,17 @@ export class BookingService {
     private authService: AuthService,
     private placesService: PlacesService,
     private http: HttpClient
-  ) { }
+  ) {}
 
   addBooking(newBooking: Booking) {
-    newBooking = {...newBooking, id: Math.random().toString()};
+    newBooking = {
+      ...newBooking,
+      id: null,
+      userId: this.authService.userId};
     this.placesService.updatePlaceUserIdByPlaceId(newBooking.placeId);
     return this.http.post<{name: string}>(
       `${this.backendUrl}/bookings.json`,
-      {...newBooking, id: null}
+      newBooking
     ).pipe(
       switchMap(resData => {
         this.generatedId = resData.name;
@@ -47,6 +51,34 @@ export class BookingService {
       delay(1000),
       tap(bookings => {
         this._bookings.next(bookings.filter(b => b.id !== bookingId));
+      })
+    );
+  }
+
+  fetchBookings() {
+    return this.http.get<{[key: string]: BookingResponse}>(
+      `${this.backendUrl}/bookings.json?orderBy="userId"&equalTo="${this.authService.userId}"`
+    ).pipe(
+      map(bookingData => {
+        const bookings = [];
+        for (const key in bookingData) {
+          let newBooking: Booking = {
+            id: key,
+            placeId: bookingData[key].placeId,
+            userId: null,
+            placeTitle: bookingData[key].placeTitle,
+            placeImage: bookingData[key].placeImage,
+            firstName: bookingData[key].firstName,
+            lastName: bookingData[key].lastName,
+            guestNumber: +bookingData[key].guestNumber,
+            bookedFrom: new Date(bookingData[key].bookedFrom),
+            bookedTo: new Date(bookingData[key].bookedTo)
+          }
+          bookings.push(newBooking);
+        }
+        return bookings;
+      }), tap(bookings => {
+        this._bookings.next(bookings);
       })
     );
   }

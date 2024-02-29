@@ -15,7 +15,7 @@ log.txt
 
 
 #Environment
-src/environments/environment.ts
+/src/environments/environment.ts
 
 
 /.sourcemaps
