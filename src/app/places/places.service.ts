@@ -2,15 +2,15 @@ import { Injectable } from '@angular/core';
 import {Place} from "./place.model";
 import {AuthService} from "../auth/auth.service";
 import {BehaviorSubject, delay, map, of, switchMap, take, tap, throwError} from "rxjs";
-import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
 import {HttpClient} from "@angular/common/http";
 import {PlaceResponse} from "./place-response.model";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlacesService {
-  private backendUrl = 'https://ionic-traveller-b21c3-default-rtdb.europe-west1.firebasedatabase.app/';
+  private backendUrl = environment.backendUrl;
   private _places = new BehaviorSubject<Place[]>([]);
   private _offers = new BehaviorSubject<Place[]>([
     new Place(

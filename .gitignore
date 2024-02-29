@@ -11,6 +11,11 @@ $RECYCLE.BIN/
 
 *.log
 log.txt
+.notes.txt
+
+
+#Environment
+src/environments/environment.ts
 
 
 /.sourcemaps
