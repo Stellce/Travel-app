@@ -118,32 +118,34 @@ export class PlacesService {
           this._places.next(places.concat(newPlace));
         })
       );
-    // return this.places.pipe(
-    //   take(1),
-    //   delay(1000),
-    //   tap(places => {
-    //     this._places.next(places.concat(newPlace));
-    //   })
-    // );
   }
 
-  updateOffer(placeId: string, title: string, description: string) {
-    return this.places.pipe(take(1), delay(1000), tap(places => {
-      const updatedPlaceIndex = places.findIndex(place => place.id === placeId)
-      const updatedPlaces = [...places];
-      const oldPlace = updatedPlaces[updatedPlaceIndex];
-      updatedPlaces[updatedPlaceIndex] = new Place(
-        oldPlace.id,
-        title,
-        description,
-        oldPlace.imageUrl,
-        oldPlace.price,
-        oldPlace.availableFrom,
-        oldPlace.availableTo,
-        oldPlace.userId
-      );
-      this._places.next(updatedPlaces);
-    }));
+  updatePlace(placeId: string, title: string, description: string) {
+    let updatedPlaces: Place[];
+    return this.places.pipe(
+      take(1),
+      switchMap(places => {
+        const updatedPlaceIndex = places.findIndex(place => place.id === placeId)
+        const updatedPlaces = [...places];
+        const oldPlace = updatedPlaces[updatedPlaceIndex];
+        updatedPlaces[updatedPlaceIndex] = new Place(
+          oldPlace.id,
+          title,
+          description,
+          oldPlace.imageUrl,
+          oldPlace.price,
+          oldPlace.availableFrom,
+          oldPlace.availableTo,
+          oldPlace.userId
+        );
+        return this.http.put(
+          `${this.backendUrl}/offered-places/${placeId}.json`,
+          {...updatedPlaces[updatedPlaceIndex], id: null}
+        );
+      }),
+      tap(() => {
+        this._places.next(updatedPlaces);
+      }));
   }
 
   updatePlaceUserIdByPlaceId(placeId: string) {

@@ -43,13 +43,13 @@ export class EditOfferPage implements OnInit, OnDestroy {
     })
   }
 
-  onUpdateOffer() {
+  onUpdatePlace() {
     if(this.form.invalid) return;
     this.loadingCtr.create({
       message: 'Updating place...'
     }).then(loadingEl => {
       loadingEl.present();
-      this.placesService.updateOffer(
+      this.placesService.updatePlace(
         this.place.id,
         this.form.value.title,
         this.form.value.description
