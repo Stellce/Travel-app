@@ -10,15 +10,18 @@ import {MapModalComponent} from "../../map-modal/map-modal.component";
 export class LocationPickerComponent  implements OnInit {
 
   constructor(
-    private modalCtr: ModalController
+    private modalCtrl: ModalController
   ) { }
 
   ngOnInit() {}
 
   onPickLocation() {
-    this.modalCtr.create({component: MapModalComponent}).then(modalEl => {
+    this.modalCtrl.create({ component: MapModalComponent }).then(modalEl => {
+      modalEl.onDidDismiss().then(modalData => {
+        console.log(modalData.data);
+      });
       modalEl.present();
-    })
+    });
   }
 
 }

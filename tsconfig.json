@@ -2,6 +2,11 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "noImplicitAny": false,
+    "types": ["google.maps"],
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
     "baseUrl": "./",
