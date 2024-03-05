@@ -7,7 +7,7 @@ import {environment} from "../../../environments/environment";
   templateUrl: './map-modal.component.html',
   styleUrls: ['./map-modal.component.scss'],
 })
-export class MapModalComponent  implements OnInit, AfterViewInit {
+export class MapModalComponent implements OnInit, AfterViewInit {
   @ViewChild('map', { static: false }) mapElementRef: ElementRef;
   private apiKey = environment.apiKey;
 
