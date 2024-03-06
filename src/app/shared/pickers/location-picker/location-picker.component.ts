@@ -12,6 +12,7 @@ import {PlaceLocation} from "../../../places/location.model";
   styleUrls: ['./location-picker.component.scss'],
 })
 export class LocationPickerComponent  implements OnInit {
+  selectedLocationImage: string;
   apiKey = environment.apiKey;
   constructor(
     private modalCtrl: ModalController,
@@ -35,6 +36,7 @@ export class LocationPickerComponent  implements OnInit {
           return of(this.getMapImage(pickedLocation.lat, pickedLocation.lng, 14));
         })).subscribe(staticMapImageUrl => {
           pickedLocation.staticMapImageUrl = staticMapImageUrl;
+          this.selectedLocationImage = staticMapImageUrl;
         });
       });
       modalEl.present();
