@@ -5,6 +5,7 @@ import {BehaviorSubject, delay, map, of, switchMap, take, tap, throwError} from 
 import {HttpClient} from "@angular/common/http";
 import {PlaceResponse} from "./place-response.model";
 import {environment} from "../../environments/environment";
+import {PlaceLocation} from "./location.model";
 
 @Injectable({
   providedIn: 'root'
@@ -13,36 +14,36 @@ export class PlacesService {
   private backendUrl = environment.backendUrl;
   private _places = new BehaviorSubject<Place[]>([]);
   private _offers = new BehaviorSubject<Place[]>([
-    new Place(
-      'p3',
-      'Manhattan Mansion',
-      'In the heart of New York City',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
-      149,
-      new Date('2024-01-01'),
-      new Date('2024-12-31'),
-      'abc'
-    ),
-    new Place(
-      'p3',
-      'Manhattan Mansion',
-      'In the heart of New York City',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
-      149,
-      new Date('2024-01-01'),
-      new Date('2024-12-31'),
-      'abc'
-    ),
-    new Place(
-      'p3',
-      'Manhattan Mansion',
-      'In the heart of New York City',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
-      149,
-      new Date('2024-01-01'),
-      new Date('2024-12-31'),
-      'abc'
-    ),
+    // new Place(
+    //   'p3',
+    //   'Manhattan Mansion',
+    //   'In the heart of New York City',
+    //   'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
+    //   149,
+    //   new Date('2024-01-01'),
+    //   new Date('2024-12-31'),
+    //   'abc'
+    // ),
+    // new Place(
+    //   'p3',
+    //   'Manhattan Mansion',
+    //   'In the heart of New York City',
+    //   'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
+    //   149,
+    //   new Date('2024-01-01'),
+    //   new Date('2024-12-31'),
+    //   'abc'
+    // ),
+    // new Place(
+    //   'p3',
+    //   'Manhattan Mansion',
+    //   'In the heart of New York City',
+    //   'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
+    //   149,
+    //   new Date('2024-01-01'),
+    //   new Date('2024-12-31'),
+    //   'abc'
+    // ),
   ]);
   testSub = new BehaviorSubject(123);
   constructor(
@@ -72,7 +73,8 @@ export class PlacesService {
               resData[key].price,
               new Date(resData[key].availableFrom),
               new Date(resData[key].availableTo),
-              resData[key].userId
+              resData[key].userId,
+              resData[key].location
             )
           )
         }
@@ -94,30 +96,26 @@ export class PlacesService {
           placeResponse.price,
           new Date(placeResponse.availableFrom),
           new Date(placeResponse.availableTo),
-          placeResponse.userId
+          placeResponse.userId,
+          placeResponse.location
         );
       })
     )
-    // return this.places.pipe(
-    //   take(1),
-    //   map(places => {
-    //     return {...places.find(p => p.id === id)}
-    //   })
-    // );
   }
 
-  addPlace(title: string, decription: string, price: number, dateFrom: Date, dateTo: Date) {
+  addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date, location: PlaceLocation) {
     let generatedId: string;
     const newPlace =
       new Place(
         Math.random().toString(),
         title,
-        decription,
+        description,
         'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
         price,
         dateFrom,
         dateTo,
-        this.authService.userId
+        this.authService.userId,
+        location
         );
     return this.http
       .post<{name: string}>(`${this.backendUrl}/offered-places.json`, {...newPlace, id: null})
@@ -157,7 +155,8 @@ export class PlacesService {
           oldPlace.price,
           oldPlace.availableFrom,
           oldPlace.availableTo,
-          oldPlace.userId
+          oldPlace.userId,
+          oldPlace.location
         );
         return this.http.put(
           `${this.backendUrl}/offered-places/${placeId}.json`,
