@@ -140,7 +140,7 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         },
         selectable: false,
         closeButtonText: 'Close',
-        title: this.place.location.address
+        title: this.place.location?.address
       }
     }).then(modalEl => {
       modalEl.present();

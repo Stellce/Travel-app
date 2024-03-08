@@ -1,10 +1,11 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {ModalController} from "@ionic/angular";
+import {ActionSheetController, AlertController, ModalController} from "@ionic/angular";
 import {MapModalComponent} from "../../map-modal/map-modal.component";
 import {HttpClient} from "@angular/common/http";
 import {environment} from "../../../../environments/environment";
 import {map, of, switchMap} from "rxjs";
-import {PlaceLocation} from "../../../places/location.model";
+import {Coordinates, PlaceLocation} from "../../../places/location.model";
+import {Geolocation} from "@capacitor/geolocation";
 
 @Component({
   selector: 'app-location-picker',
@@ -17,12 +18,46 @@ export class LocationPickerComponent  implements OnInit {
   apiKey = environment.apiKey;
   constructor(
     private modalCtrl: ModalController,
-    private http: HttpClient
+    private http: HttpClient,
+    private actionSheerCtrl: ActionSheetController,
+    private alertCtrl: AlertController
   ) { }
 
   ngOnInit() {}
 
   onPickLocation() {
+    this.actionSheerCtrl.create({
+      header: 'Please choose',
+      buttons: [
+        {text: 'Auto-Locate', handler: () => {
+          this.locateUser();
+        }},
+        {text: 'Pick on map', handler: () => {
+          this.openMap();
+        }},
+        {text: 'Cancel', role: "cancel"},
+      ]
+    }).then(actionSheet => {
+      actionSheet.present();
+    });
+
+  }
+
+  private async locateUser() {
+    await Geolocation.getCurrentPosition().then(position => {
+     const coordinates: Coordinates = {lng: position.coords.longitude, lat: position.coords.latitude};
+      console.log('Current position:', coordinates);
+    });
+  }
+
+  private showErrorAlert() {
+    this.alertCtrl.create({
+      header: 'Could not fetch location',
+      message: 'Please use the map to pick a location!'
+    }).then(alertEl => alertEl.present());
+  }
+
+  private openMap() {
     this.modalCtrl.create({ component: MapModalComponent }).then(modalEl => {
       modalEl.onDidDismiss().then(modalData => {
         if(!modalData?.data) return;
