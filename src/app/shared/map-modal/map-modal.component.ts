@@ -1,8 +1,7 @@
 import {AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {ModalController} from "@ionic/angular";
 import {environment} from "../../../environments/environment";
-import {GoogleMapsModule} from "@angular/google-maps";
-
+import {Loader} from '@googlemaps/js-api-loader'
 @Component({
   selector: 'app-map-modal',
   templateUrl: './map-modal.component.html',
@@ -67,6 +66,22 @@ export class MapModalComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async getGoogleMaps(): Promise<any> {
+    const loader = new Loader({apiKey: this.apiKey})
+    loader.load().then(() => {
+      const map = displayMap();
+    })
+
+    function displayMap() {
+      const mapOptions = {
+        center: { lat: -33.860664, lng: 151.208138 },
+        zoom: 14
+      };
+      const mapEl = document.createElement("div");
+      mapEl.setAttribute("id", "map");
+      const map = new google.maps.Map(mapEl, mapOptions);
+      return map;
+    }
+
 
     const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
     this.map = new Map(document.getElementById("map") as HTMLElement, {

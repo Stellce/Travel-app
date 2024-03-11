@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {ActionSheetController, AlertController, ModalController} from "@ionic/angular";
 import {MapModalComponent} from "../../map-modal/map-modal.component";
 import {HttpClient} from "@angular/common/http";
@@ -12,7 +12,7 @@ import {Geolocation} from "@capacitor/geolocation";
   templateUrl: './location-picker.component.html',
   styleUrls: ['./location-picker.component.scss'],
 })
-export class LocationPickerComponent  implements OnInit {
+export class LocationPickerComponent {
   @Output() locationPick = new EventEmitter<PlaceLocation>();
   selectedLocationImage: string;
   apiKey = environment.apiKey;
@@ -22,8 +22,6 @@ export class LocationPickerComponent  implements OnInit {
     private actionSheerCtrl: ActionSheetController,
     private alertCtrl: AlertController
   ) { }
-
-  ngOnInit() {}
 
   onPickLocation() {
     this.actionSheerCtrl.create({
@@ -45,7 +43,11 @@ export class LocationPickerComponent  implements OnInit {
 
   private async locateUser() {
     await Geolocation.getCurrentPosition().then(position => {
-     const coordinates: Coordinates = {lng: position.coords.longitude, lat: position.coords.latitude};
+     const coordinates: Coordinates = {
+       lng: position.coords.longitude,
+       lat: position.coords.latitude
+     };
+     this.createPlace(coordinates);
       console.log('Current position:', coordinates);
     });
   }
@@ -53,7 +55,8 @@ export class LocationPickerComponent  implements OnInit {
   private showErrorAlert() {
     this.alertCtrl.create({
       header: 'Could not fetch location',
-      message: 'Please use the map to pick a location!'
+      message: 'Please use the map to pick a location!',
+      buttons: ['Okay']
     }).then(alertEl => alertEl.present());
   }
 
@@ -61,22 +64,30 @@ export class LocationPickerComponent  implements OnInit {
     this.modalCtrl.create({ component: MapModalComponent }).then(modalEl => {
       modalEl.onDidDismiss().then(modalData => {
         if(!modalData?.data) return;
-        const pickedLocation: PlaceLocation = {
+        const coordinates: Coordinates = {
           lat: modalData.data.lat,
-          lng: modalData.data.lng,
-          address: null,
-          staticMapImageUrl: null
+          lng: modalData.data.lng
         }
-        this.getAddress(modalData.data.lat, modalData.data.lng).pipe(switchMap(address => {
-          pickedLocation.address = address;
-          return of(this.getMapImage(pickedLocation.lat, pickedLocation.lng, 14));
-        })).subscribe(staticMapImageUrl => {
-          pickedLocation.staticMapImageUrl = staticMapImageUrl;
-          this.selectedLocationImage = staticMapImageUrl;
-          this.locationPick.emit(pickedLocation);
-        });
+        this.createPlace(coordinates);
       });
       modalEl.present();
+    });
+  }
+
+  private createPlace(coordinates: Coordinates) {
+    const pickedLocation: PlaceLocation = {
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+      address: null,
+      staticMapImageUrl: null
+    }
+    this.getAddress(coordinates.lat, coordinates.lng).pipe(switchMap(address => {
+      pickedLocation.address = address;
+      return of(this.getMapImage(pickedLocation.lat, pickedLocation.lng, 14));
+    })).subscribe(staticMapImageUrl => {
+      pickedLocation.staticMapImageUrl = staticMapImageUrl;
+      this.selectedLocationImage = staticMapImageUrl;
+      this.locationPick.emit(pickedLocation);
     });
   }
 
