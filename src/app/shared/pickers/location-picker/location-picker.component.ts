@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {ActionSheetController, AlertController, ModalController} from "@ionic/angular";
 import {MapModalComponent} from "../../map-modal/map-modal.component";
 import {HttpClient} from "@angular/common/http";
@@ -14,6 +14,7 @@ import {Geolocation} from "@capacitor/geolocation";
 })
 export class LocationPickerComponent {
   @Output() locationPick = new EventEmitter<PlaceLocation>();
+  @Input() showPreview = false;
   selectedLocationImage: string;
   apiKey = environment.apiKey;
   constructor(
