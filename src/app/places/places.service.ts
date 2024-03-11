@@ -13,39 +13,8 @@ import {PlaceLocation} from "./location.model";
 export class PlacesService {
   private backendUrl = environment.backendUrl;
   private _places = new BehaviorSubject<Place[]>([]);
-  private _offers = new BehaviorSubject<Place[]>([
-    // new Place(
-    //   'p3',
-    //   'Manhattan Mansion',
-    //   'In the heart of New York City',
-    //   'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
-    //   149,
-    //   new Date('2024-01-01'),
-    //   new Date('2024-12-31'),
-    //   'abc'
-    // ),
-    // new Place(
-    //   'p3',
-    //   'Manhattan Mansion',
-    //   'In the heart of New York City',
-    //   'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
-    //   149,
-    //   new Date('2024-01-01'),
-    //   new Date('2024-12-31'),
-    //   'abc'
-    // ),
-    // new Place(
-    //   'p3',
-    //   'Manhattan Mansion',
-    //   'In the heart of New York City',
-    //   'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
-    //   149,
-    //   new Date('2024-01-01'),
-    //   new Date('2024-12-31'),
-    //   'abc'
-    // ),
-  ]);
-  testSub = new BehaviorSubject(123);
+  private _offers = new BehaviorSubject<Place[]>([]);
+  private cloudSaveImageUrl = environment.cloudSaveImageUrl;
   constructor(
     private authService: AuthService,
     private http: HttpClient
@@ -103,14 +72,21 @@ export class PlacesService {
     )
   }
 
-  addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date, location: PlaceLocation) {
+  uploadImage(image: File) {
+    const uploadData = new FormData();
+    uploadData.append('image', image);
+
+    return this.http.post<{imageUrl: string, imagePath: string}>(this.cloudSaveImageUrl, uploadData);
+  }
+
+  addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date, location: PlaceLocation, imageUrl: string) {
     let generatedId: string;
     const newPlace =
       new Place(
         Math.random().toString(),
         title,
         description,
-        'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/288px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg',
+        imageUrl,
         price,
         dateFrom,
         dateTo,

@@ -4,6 +4,7 @@ import {PlacesService} from "../../places.service";
 import {Router} from "@angular/router";
 import {LoadingController} from "@ionic/angular";
 import {PlaceLocation} from "../../location.model";
+import {switchMap} from "rxjs";
 
 function base64toBlob(base64Data, contentType) {
   contentType = contentType || '';
@@ -93,19 +94,27 @@ export class NewOfferPage implements OnInit {
       message: 'Creating place...'
     }).then(loadingEl => {
       loadingEl.present();
-      let newPlace = this.form.value;
-      this.placesService.addPlace(
-        newPlace.title,
-        newPlace.description,
-        +newPlace.price,
-        new Date(newPlace.dateFrom),
-        new Date(newPlace.dateTo),
-        this.form.value.location
-      ).subscribe(() => {
-        loadingEl.dismiss();
-        this.form.reset();
-        this.router.navigate(['/', 'places', 'offers']);
-      });
+      this.placesService
+        .uploadImage(this.form.get('image').value)
+        .pipe(
+          switchMap(uploadResponse => {
+            let newPlace = this.form.value;
+            return this.placesService.addPlace(
+              newPlace.title,
+              newPlace.description,
+              +newPlace.price,
+              new Date(newPlace.dateFrom),
+              new Date(newPlace.dateTo),
+              this.form.value.location,
+              uploadResponse.imageUrl
+            )
+          })
+        )
+        .subscribe(() => {
+          loadingEl.dismiss();
+          this.form.reset();
+          this.router.navigate(['/', 'places', 'offers']);
+        });
     });
   }
 }
