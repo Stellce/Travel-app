@@ -42,15 +42,20 @@ export class LocationPickerComponent {
 
   }
 
-  private async locateUser() {
-    await Geolocation.getCurrentPosition().then(position => {
-     const coordinates: Coordinates = {
-       lng: position.coords.longitude,
-       lat: position.coords.latitude
-     };
-     this.createPlace(coordinates);
-      console.log('Current position:', coordinates);
-    });
+  private locateUser() {
+    if(!Geolocation) return this.showErrorAlert();
+    Geolocation.getCurrentPosition()
+      .then(position => {
+        const coordinates: Coordinates = {
+          lng: position.coords.longitude,
+          lat: position.coords.latitude
+        };
+        this.createPlace(coordinates);
+        console.log('Current position:', coordinates);
+      })
+      .catch(err => {
+        this.showErrorAlert();
+      });
   }
 
   private showErrorAlert() {
@@ -70,6 +75,8 @@ export class LocationPickerComponent {
           lng: modalData.data.lng
         }
         this.createPlace(coordinates);
+      }).catch(e => {
+        console.log("error")
       });
       modalEl.present();
     });

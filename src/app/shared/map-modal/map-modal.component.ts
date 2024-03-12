@@ -1,7 +1,6 @@
 import {AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {ModalController} from "@ionic/angular";
 import {environment} from "../../../environments/environment";
-import {Loader} from '@googlemaps/js-api-loader'
 @Component({
   selector: 'app-map-modal',
   templateUrl: './map-modal.component.html',
@@ -35,12 +34,12 @@ export class MapModalComponent implements OnInit, AfterViewInit, OnDestroy {
           zoom: 16
         });
 
-        googleMaps.event.addListenerOnce(map, 'idle', () => {
+        this.googleMaps.event.addListenerOnce(map, 'idle', () => {
           this.renderer.addClass(mapEl, 'visible');
         });
 
         if(this.selectable) {
-          this.clickListener = map.event.addListener('click', event => {
+          this.clickListener = map.addListener('click', event => {
             const selectedCoords = {
               lat: event.latLng.lat(),
               lng: event.latLng.lng()
@@ -65,31 +64,30 @@ export class MapModalComponent implements OnInit, AfterViewInit, OnDestroy {
    this.modalCtrl.dismiss();
   }
 
-  private async getGoogleMaps(): Promise<any> {
-    const loader = new Loader({apiKey: this.apiKey})
-    loader.load().then(() => {
-      const map = displayMap();
-    })
-
-    function displayMap() {
-      const mapOptions = {
-        center: { lat: -33.860664, lng: 151.208138 },
-        zoom: 14
-      };
-      const mapEl = document.createElement("div");
-      mapEl.setAttribute("id", "map");
-      const map = new google.maps.Map(mapEl, mapOptions);
-      return map;
+  private getGoogleMaps(): Promise<any> {
+    const win = window as any;
+    const googleModule = win.google;
+    if (googleModule && googleModule.maps) {
+      return Promise.resolve(googleModule.maps);
     }
-
-
-    const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
-    this.map = new Map(document.getElementById("map") as HTMLElement, {
-      center: { lat: -34.397, lng: 150.644 },
-      zoom: 8,
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src =
+        'https://maps.googleapis.com/maps/api/js?key=' +
+        environment.apiKey;
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+      script.onload = () => {
+        const loadedGoogleModule = win.google;
+        if (loadedGoogleModule && loadedGoogleModule.maps) {
+          resolve(loadedGoogleModule.maps);
+        } else {
+          reject('Google maps SDK not available.');
+        }
+      };
     });
   }
-
   ngOnDestroy() {
     this.googleMaps.event.removeListener(this.clickListener);
   }
