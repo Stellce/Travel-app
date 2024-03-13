@@ -16,7 +16,7 @@ export class LocationPickerComponent {
   @Output() locationPick = new EventEmitter<PlaceLocation>();
   @Input() showPreview = false;
   selectedLocationImage: string;
-  apiKey = environment.apiKey;
+  apiKey = environment.googleMapsApiKey;
   constructor(
     private modalCtrl: ModalController,
     private http: HttpClient,
@@ -103,7 +103,7 @@ export class LocationPickerComponent {
     return this.http
       .get<any>(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${
-          environment.apiKey
+          environment.googleMapsApiKey
         }`
       )
       .pipe(
@@ -119,7 +119,7 @@ export class LocationPickerComponent {
   private getMapImage(lat: number, lng: number, zoom: number) {
     return `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=${zoom}&size=500x300&maptype=roadmap
     &markers=color:red%7Clabel:Place%7C${lat},${lng}
-    &key=${environment.apiKey}`;
+    &key=${environment.googleMapsApiKey}`;
   }
 
 }

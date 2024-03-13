@@ -12,10 +12,8 @@ export class MapModalComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() selectable = true;
   @Input() closeButtonText = 'Cancel';
   @Input() title = 'Pick location';
-  private apiKey = environment.apiKey;
   private clickListener: any;
   private googleMaps: any;
-  private map: google.maps.Map;
 
   constructor(
     private modalCtrl: ModalController,
@@ -74,7 +72,7 @@ export class MapModalComponent implements OnInit, AfterViewInit, OnDestroy {
       const script = document.createElement('script');
       script.src =
         'https://maps.googleapis.com/maps/api/js?key=' +
-        environment.apiKey;
+        environment.googleMapsApiKey;
       script.async = true;
       script.defer = true;
       document.body.appendChild(script);

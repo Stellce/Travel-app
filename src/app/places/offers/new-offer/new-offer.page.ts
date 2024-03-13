@@ -63,8 +63,7 @@ export class NewOfferPage implements OnInit {
         updateOn: 'blur',
         validators: [Validators.required]
       }),
-      location: new FormControl(null, {validators: [Validators.required]
-      }),
+      location: new FormControl(null, {validators: [Validators.required]}),
       image: new FormControl(null)
     });
   }
@@ -77,7 +76,10 @@ export class NewOfferPage implements OnInit {
     let imageFile;
     if(typeof imageData === 'string') {
       try {
-        imageFile = base64toBlob(imageData.replace('data:image/jpeg;base64,', ''), 'image/jpeg');
+        imageFile = base64toBlob(
+          imageData.replace('data:image/jpeg;base64,', ''),
+          'image/jpeg'
+        );
       } catch (e) {
         return console.log(e);
       }

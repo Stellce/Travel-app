@@ -21,8 +21,7 @@ export class AuthPage implements OnInit {
   ngOnInit() {
   }
 
-  onLogin(f: NgForm) {
-    if(f.invalid) return;
+  onLogin() {
     this.isLoading = true;
     this.authService.login();
     this.loadingCtrl
@@ -50,5 +49,20 @@ export class AuthPage implements OnInit {
 
   onSwitchAuthMode() {
     this.isLogin = !this.isLogin;
+  }
+
+  onSubmit(form: NgForm) {
+    if (form.invalid) return;
+    const email = form.value.email;
+    const password = form.value.password;
+    console.log(email, password);
+
+    if (this.isLogin) {
+      // Send a request to login servers
+    } else {
+      this.authService.signup(email, password).subscribe(resData => {
+
+      });
+    }
   }
 }
