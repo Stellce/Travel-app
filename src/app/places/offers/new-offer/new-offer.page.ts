@@ -92,27 +92,29 @@ export class NewOfferPage implements OnInit {
 
   onCreateOffer() {
     if(this.form.invalid || !this.form.get('image').value) return;
-    console.log(this.form.value);
-    this.loadingCtrl.create({
-      message: 'Creating place...'
-    }).then(loadingEl => {
-      loadingEl.present();
-      this.placesService
-        .uploadImage(this.form.get('image').value)
-        .pipe(
-          switchMap(uploadResponse => {
-            let newPlace: Place = {
-              ...this.form.value,
-              imageUrl: uploadResponse.imageUrl
-            };
-            return this.placesService.addPlace(newPlace);
-          })
-        )
-        .subscribe(() => {
-          loadingEl.dismiss();
-          this.form.reset();
-          this.router.navigate(['/', 'places', 'offers']);
-        });
-    });
+
+    this.loadingCtrl
+      .create({
+        message: 'Creating place...'
+      })
+      .then(loadingEl => {
+        loadingEl.present();
+        this.placesService
+          .uploadImage(this.form.get('image').value)
+          .pipe(
+            switchMap(uploadResponse => {
+              let newPlace: Place = {
+                ...this.form.value,
+                imageUrl: uploadResponse.imageUrl
+              };
+              return this.placesService.addPlace(newPlace);
+            })
+          )
+          .subscribe(() => {
+            loadingEl.dismiss();
+            this.form.reset();
+            this.router.navigate(['/', 'places', 'offers']);
+          });
+      });
   }
 }

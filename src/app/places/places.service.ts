@@ -103,7 +103,7 @@ export class PlacesService {
         newPlace.id = generatedId;
         this._places.next(places.concat(newPlace));
       })
-    ).subscribe();
+    );
   }
 
   updatePlace(placeId: string, title: string, description: string) {
