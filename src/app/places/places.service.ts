@@ -79,33 +79,31 @@ export class PlacesService {
     return this.http.post<{imageUrl: string, imagePath: string}>(this.cloudSaveImageUrl, uploadData);
   }
 
-  addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date, location: PlaceLocation, imageUrl: string) {
+  addPlace(newPlace: Place) {
     let generatedId: string;
-    const newPlace =
-      new Place(
-        Math.random().toString(),
-        title,
-        description,
-        imageUrl,
-        price,
-        dateFrom,
-        dateTo,
-        this.authService.userId,
-        location
-        );
-    return this.http
-      .post<{name: string}>(`${this.backendUrl}/offered-places.json`, {...newPlace, id: null})
-      .pipe(
-        switchMap(resData => {
-          generatedId = resData.name;
-          return this.places;
-        }),
-        take(1),
-        tap(places => {
-          newPlace.id = generatedId;
-          this._places.next(places.concat(newPlace));
-        })
-      );
+    return this.authService.userId.pipe(take(1), switchMap(userId => {
+      if(!userId) throw new Error('No user found');
+      newPlace = {
+        ...newPlace,
+        id: Math.random().toString(),
+        userId: userId
+      }
+      return this.http
+        .post<{name: string}>(
+          `${this.backendUrl}/offered-places.json`,
+          {...newPlace, id: null}
+        )
+    }),
+      switchMap(resData => {
+        generatedId = resData.name;
+        return this.places;
+      }),
+      take(1),
+      tap(places => {
+        newPlace.id = generatedId;
+        this._places.next(places.concat(newPlace));
+      })
+    ).subscribe();
   }
 
   updatePlace(placeId: string, title: string, description: string) {
@@ -145,11 +143,11 @@ export class PlacesService {
     );
   }
 
-  updatePlaceUserIdByPlaceId(placeId: string) {
-    this.places.pipe(take(1)).subscribe(places => {
-      places.find(p => p.id === placeId).userId = this.authService.userId;
-      this._places.next(places);
-    })
-  }
+  // updatePlaceUserIdByPlaceId(placeId: string) {
+  //   this.places.pipe(take(1)).subscribe(places => {
+  //     places.find(p => p.id === placeId).userId = this.authService.user;
+  //     this._places.next(places);
+  //   })
+  // }
 
 }

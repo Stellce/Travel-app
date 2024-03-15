@@ -24,25 +24,27 @@ export class BookingService {
   ) {}
 
   addBooking(newBooking: Booking) {
-    newBooking = {
-      ...newBooking,
-      id: null,
-      userId: this.authService.userId};
-    this.placesService.updatePlaceUserIdByPlaceId(newBooking.placeId);
-    return this.http.post<{name: string}>(
-      `${this.backendUrl}/bookings.json`,
-      newBooking
-    ).pipe(
-      switchMap(resData => {
-        this.generatedId = resData.name;
-        return this.bookings;
-      }),
+    return this.authService.userId.pipe(take(1), switchMap(userId => {
+      if(!userId) throw new Error('No user id found!');
+      newBooking = {
+        ...newBooking,
+        id: null,
+        userId: userId
+      };
+      // this.placesService.updatePlaceUserIdByPlaceId(newBooking.placeId);
+      return this.http.post<{name: string}>(
+        `${this.backendUrl}/bookings.json`,
+        newBooking
+      )
+    }), switchMap(resData => {
+      this.generatedId = resData.name;
+      return this.bookings;
+    }),
       take(1),
       tap(bookings => {
         newBooking.id = this.generatedId;
         this._bookings.next(bookings.concat(newBooking));
-      })
-    )
+      }));
   }
 
   cancelBooking(bookingId: string) {

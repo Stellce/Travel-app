@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {PlacesService} from "../places.service";
 import {Place} from "../place.model";
 import {SegmentChangeEventDetail} from "@ionic/angular";
-import {Subscription} from "rxjs";
+import {Subscription, take} from "rxjs";
 import {AuthService} from "../../auth/auth.service";
 
 @Component({
@@ -37,9 +37,12 @@ export class DiscoverPage implements OnInit, OnDestroy {
   }
 
   onFilterUpdate(filter: string) {
-    const isShown = (place: Place) => filter === 'all' || place.userId !== this.authService.userId;
-    this.relevantPlaces = this.loadedPlaces.filter(isShown);
-    this.filter = filter;
+    this.authService.userId.pipe(take(1)).subscribe(userId => {
+      const isShown = (place: Place) =>
+        filter === 'all' || place.userId !== userId;
+      this.relevantPlaces = this.loadedPlaces.filter(isShown);
+      this.filter = filter;
+    });
   }
 
   ngOnDestroy() {

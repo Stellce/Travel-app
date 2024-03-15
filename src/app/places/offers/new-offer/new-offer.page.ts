@@ -5,6 +5,7 @@ import {Router} from "@angular/router";
 import {LoadingController} from "@ionic/angular";
 import {PlaceLocation} from "../../location.model";
 import {switchMap} from "rxjs";
+import {Place} from "../../place.model";
 
 function base64toBlob(base64Data, contentType) {
   contentType = contentType || '';
@@ -100,16 +101,11 @@ export class NewOfferPage implements OnInit {
         .uploadImage(this.form.get('image').value)
         .pipe(
           switchMap(uploadResponse => {
-            let newPlace = this.form.value;
-            return this.placesService.addPlace(
-              newPlace.title,
-              newPlace.description,
-              +newPlace.price,
-              new Date(newPlace.dateFrom),
-              new Date(newPlace.dateTo),
-              this.form.value.location,
-              uploadResponse.imageUrl
-            )
+            let newPlace: Place = {
+              ...this.form.value,
+              imageUrl: uploadResponse.imageUrl
+            };
+            return this.placesService.addPlace(newPlace);
           })
         )
         .subscribe(() => {

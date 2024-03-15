@@ -10,7 +10,7 @@ import {
 import {Place} from "../../place.model";
 import {PlacesService} from "../../places.service";
 import {CreateBookingComponent} from "../../../bookings/create-booking/create-booking.component";
-import {Subscription} from "rxjs";
+import {Subscription, switchMap} from "rxjs";
 import {BookingService} from "../../../bookings/booking.service";
 import {AuthService} from "../../../auth/auth.service";
 import {Booking} from "../../../bookings/booking.model";
@@ -43,13 +43,18 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     this.route.paramMap.subscribe(paramMap => {
       if(!paramMap.has('placeId'))
         return this.navCtrl.navigateBack('/places/offers');
+
       this.isLoading = true;
-      this.placeSub = this.placesService
-        .getPlace(paramMap.get('placeId'))
-        .subscribe({
+      let fetchedUserId: string;
+      this.authService.userId.pipe(switchMap(userId => {
+        if(!userId) throw new Error('Found no user!');
+        fetchedUserId = userId;
+        return this.placesService
+          .getPlace(paramMap.get('placeId'))
+      })).subscribe({
           next: place => {
           this.place = place;
-          this.isBookable = place.userId !== this.authService.userId;
+          this.isBookable = place.userId !== fetchedUserId;
           this.isLoading = false;
           },
           error: () => {
