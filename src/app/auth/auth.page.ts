@@ -78,8 +78,9 @@ export class AuthPage implements OnInit {
     if (form.invalid) return;
     const email = form.value.email;
     const password = form.value.password;
-    console.log(email, password);
+
     this.authenticate(email, password);
+    form.reset();
   }
 
   private showAlert(message: string) {
