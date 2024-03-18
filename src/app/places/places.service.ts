@@ -76,7 +76,10 @@ export class PlacesService {
     const uploadData = new FormData();
     uploadData.append('image', image);
 
-    return this.http.post<{imageUrl: string, imagePath: string}>(this.cloudSaveImageUrl, uploadData);
+    return this.http.post<{imageUrl: string, imagePath: string}>(
+      this.cloudSaveImageUrl,
+      uploadData
+    );
   }
 
   addPlace(newPlace: Place) {

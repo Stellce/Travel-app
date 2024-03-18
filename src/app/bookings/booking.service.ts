@@ -60,9 +60,12 @@ export class BookingService {
   }
 
   fetchBookings() {
-    return this.http.get<{[key: string]: BookingResponse}>(
-      `${this.backendUrl}/bookings.json?orderBy="userId"&equalTo="${this.authService.userId}"`
-    ).pipe(
+    return this.authService.userId.pipe(switchMap(userId => {
+      if(!userId) throw new Error('User not found!');
+      return this.http.get<{[key: string]: BookingResponse}>(
+        `${this.backendUrl}/bookings.json?orderBy="userId"&equalTo="${userId}"`
+      )
+    }),
       map(bookingData => {
         const bookings = [];
         for (const key in bookingData) {
@@ -86,5 +89,4 @@ export class BookingService {
       })
     );
   }
-
 }
