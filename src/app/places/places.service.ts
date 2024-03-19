@@ -28,34 +28,39 @@ export class PlacesService {
   }
 
   fetchPlaces() {
-    return this.http
-      .get<{[key: string]: PlaceResponse}>(`${this.backendUrl}/offered-places.json`)
-      .pipe(map(resData => {
-        const places = [];
-        for (const key in resData) {
-          places.push(
-            new Place(
-              key,
-              resData[key].title,
-              resData[key].description,
-              resData[key].imageUrl,
-              resData[key].price,
-              new Date(resData[key].availableFrom),
-              new Date(resData[key].availableTo),
-              resData[key].userId,
-              resData[key].location
-            )
+    return this.authService.token.pipe(take(1), switchMap(token => {
+      return this.http
+        .get<{[key: string]: PlaceResponse}>(`${this.backendUrl}/offered-places.json?auth=${token}`);
+    }),
+    map(resData => {
+      const places = [];
+      for (const key in resData) {
+        places.push(
+          new Place(
+            key,
+            resData[key].title,
+            resData[key].description,
+            resData[key].imageUrl,
+            resData[key].price,
+            new Date(resData[key].availableFrom),
+            new Date(resData[key].availableTo),
+            resData[key].userId,
+            resData[key].location
           )
-        }
-        return places;
+        )
+      }
+      return places;
       }),
-        tap(places => {
-          this._places.next(places);
-        }));
+      tap(places => {
+        this._places.next(places);
+      })
+    );
   }
 
   getPlace(id: string) {
-    return this.http.get<PlaceResponse>(`${this.backendUrl}/offered-places/${id}.json`).pipe(
+    return this.authService.token.pipe(take(1), switchMap(token => {
+      return this.http.get<PlaceResponse>(`${this.backendUrl}/offered-places/${id}.json?auth=${token}`)
+    }),
       map(placeResponse => {
         return new Place(
           id,
@@ -76,24 +81,37 @@ export class PlacesService {
     const uploadData = new FormData();
     uploadData.append('image', image);
 
-    return this.http.post<{imageUrl: string, imagePath: string}>(
-      this.cloudSaveImageUrl,
-      uploadData
-    );
+    return this.authService.token.pipe(take(1), switchMap(token => {
+      return this.http.post<{imageUrl: string, imagePath: string}>(
+        this.cloudSaveImageUrl,
+        uploadData,
+        {headers: {Authorization: 'Bearer ' + token}}
+      );
+    }));
+
+
   }
 
   addPlace(newPlace: Place) {
     let generatedId: string;
-    return this.authService.userId.pipe(take(1), switchMap(userId => {
-      if(!userId) throw new Error('No user found');
+    let fetchedUserId: string;
+    return this.authService.userId.pipe(
+      take(1),
+      switchMap(userId => {
+        fetchedUserId = userId;
+        return this.authService.token;
+      }),
+      take(1),
+      switchMap(token => {
+      if(!fetchedUserId) throw new Error('No user found');
       newPlace = {
         ...newPlace,
         id: Math.random().toString(),
-        userId: userId
+        userId: fetchedUserId
       }
       return this.http
         .post<{name: string}>(
-          `${this.backendUrl}/offered-places.json`,
+          `${this.backendUrl}/offered-places.json?auth=${token}`,
           {...newPlace, id: null}
         )
     }),
@@ -111,7 +129,13 @@ export class PlacesService {
 
   updatePlace(placeId: string, title: string, description: string) {
     let updatedPlaces: Place[];
-    return this.places.pipe(
+    let fetchedToken: string;
+    return this.authService.token.pipe(
+      take(1),
+      switchMap(token => {
+        fetchedToken = token;
+        return this.places;
+      }),
       take(1),
       switchMap(places => {
         if(!places || places.length <= 0) {
@@ -136,7 +160,7 @@ export class PlacesService {
           oldPlace.location
         );
         return this.http.put(
-          `${this.backendUrl}/offered-places/${placeId}.json`,
+          `${this.backendUrl}/offered-places/${placeId}.json?auth=${fetchedToken}`,
           {...updatedPlaces[updatedPlaceIndex], id: null}
         );
       }),
