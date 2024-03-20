@@ -14,7 +14,6 @@ export class PlacesService {
   private backendUrl = environment.backendUrl;
   private _places = new BehaviorSubject<Place[]>([]);
   private _offers = new BehaviorSubject<Place[]>([]);
-  private cloudSaveImageUrl = environment.cloudSaveImageUrl;
   constructor(
     private authService: AuthService,
     private http: HttpClient
@@ -83,7 +82,7 @@ export class PlacesService {
 
     return this.authService.token.pipe(take(1), switchMap(token => {
       return this.http.post<{imageUrl: string, imagePath: string}>(
-        this.cloudSaveImageUrl,
+        environment.cloudSaveImageUrl,
         uploadData,
         {headers: {Authorization: 'Bearer ' + token}}
       );

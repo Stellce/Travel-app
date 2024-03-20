@@ -24,31 +24,45 @@ export class BookingService {
   ) {}
 
   addBooking(newBooking: Booking) {
-    return this.authService.userId.pipe(take(1), switchMap(userId => {
-      if(!userId) throw new Error('No user id found!');
-      newBooking = {
-        ...newBooking,
-        id: null,
-        userId: userId
-      };
-      // this.placesService.updatePlaceUserIdByPlaceId(newBooking.placeId);
-      return this.http.post<{name: string}>(
-        `${this.backendUrl}/bookings.json`,
-        newBooking
-      )
-    }), switchMap(resData => {
-      this.generatedId = resData.name;
-      return this.bookings;
-    }),
+    let fetchedUserId: string;
+    return this.authService.userId.pipe(
+      take(1),
+      switchMap(userId => {
+        if(!userId) throw new Error('No user id found!');
+        fetchedUserId = userId;
+        return this.authService.token;
+      }),
+      take(1),
+      switchMap(token => {
+        newBooking = {
+          ...newBooking,
+          id: null,
+          userId: fetchedUserId
+        };
+        // this.placesService.updatePlaceUserIdByPlaceId(newBooking.placeId);
+        return this.http.post<{name: string}>(
+          `${this.backendUrl}/bookings.json?auth=${token}`,
+          newBooking
+        )
+      }),
+      switchMap(resData => {
+        this.generatedId = resData.name;
+        return this.bookings;
+      }),
       take(1),
       tap(bookings => {
         newBooking.id = this.generatedId;
         this._bookings.next(bookings.concat(newBooking));
-      }));
+      })
+    );
   }
 
   cancelBooking(bookingId: string) {
-    return this.http.delete(`${this.backendUrl}/bookings/${bookingId}.json`).pipe(
+    return this.authService.token.pipe(
+      take(1),
+      switchMap(token => {
+        return this.http.delete(`${this.backendUrl}/bookings/${bookingId}.json?auth=${token}`);
+      }),
       switchMap(() => {
         return this.bookings;
       }),
@@ -60,12 +74,20 @@ export class BookingService {
   }
 
   fetchBookings() {
-    return this.authService.userId.pipe(take(1), switchMap(userId => {
-      if(!userId) throw new Error('User not found!');
-      return this.http.get<{[key: string]: BookingResponse}>(
-        `${this.backendUrl}/bookings.json?orderBy="userId"&equalTo="${userId}"`
-      )
-    }),
+    let fetchedUserId: string;
+    return this.authService.userId.pipe(
+      take(1),
+      switchMap(userId => {
+        if(!userId) throw new Error('User not found!');
+        fetchedUserId = userId;
+        return this.authService.token;
+      }),
+      take(1),
+      switchMap(token => {
+        return this.http.get<{[key: string]: BookingResponse}>(
+          `${this.backendUrl}/bookings.json?orderBy="userId"&equalTo="${fetchedUserId}&auth=${token}"`
+        )
+      }),
       map(bookingData => {
         const bookings = [];
         for (const key in bookingData) {
