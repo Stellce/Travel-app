@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.ionic.recipes',
-  appName: 'ionic-angular-course',
+  appId: 'com.ionic.traveller',
+  appName: 'Traveller',
   webDir: 'www',
   server: {
     androidScheme: 'https'
