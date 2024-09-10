@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.ionic.traveller',
   appName: 'Traveller',
-  webDir: 'www',
+  webDir: 'www/browser',
   server: {
     androidScheme: 'https'
   }
